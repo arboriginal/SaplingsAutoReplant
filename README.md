@@ -1,3 +1,3 @@
-# Chair
+# SaplingsAutoReplant
 
-Yet another chair plugin.
+Saplings on the ground replant themselves.
