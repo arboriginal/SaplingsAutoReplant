@@ -1,0 +1,52 @@
+# ----------------------------------------------------------------------------------------------------------------------
+# ${project.artifactId}, version ${project.version} -  Configuration file.
+# .
+# You will find an explanation of all parameters here:
+# https://github.com/arboriginal/${project.artifactId}/blob/master/src/main/resources/config.yml
+# ----------------------------------------------------------------------------------------------------------------------
+chance: 50
+# (integer) Represent the percentage of chance the sapling has to be replanted.
+
+frequency: 10
+# (integer) Number of server ticks between the sapling try to replant itself.
+
+maxTries: 20
+# (integer) Maximum number of attemps to replant the sapling.
+
+detectGroundFreq: 5
+# (integer) Number of server ticks between 2 detections of sapling is on the ground .
+
+maxDetectGroundAttempts: 10
+# (integer) Maximum number of attemps to detect the sapling is on the ground.
+
+emptyBlocks: # Availage values: https://hub.spigotmc.org/javadocs/spigot/org/bukkit/Material.html
+- AIR
+- CAVE_AIR
+- FERN
+- GRASS
+- LARGE_FERN
+- SNOW
+- TALL_GRASS
+# Those blocks are considered as empty by the plugin and so, saplings can replace them when replanted.
+# Default value mimics vanilla mechanism (tell me if I've omitted some types), but you're free to adjust this list.
+# But consider those blocks are replaced, and so you won't get their drops and can have impact on gameplay:
+# For example, if you add REDSTONE (redstone wire), it can break your redstone systems.
+# /!\ Also note all non-blocks materials (for example EGG), or solid materials (for example STONE)
+# will not be considered by the plugin in this list, because:
+# - non-blocks => There are not blocks in the world (thanks Captain Obvious!)
+# - solid materials => Saplings will stay above and so cannot be placed at the same position. 
+
+####################################### HOW THOSE VALUES ARE USED BY THE PLUGIN: #######################################
+
+# 1. A shiny sapling appears (you broke a leaf or you drop one)
+# 2. The plugin will check every {detectGroundFreq} ticks if the sapling is on the ground:
+#    If true, goes to step 3, otherwise it means is still falling,
+#    and it will retry until it has checked {maxDetectGroundAttempts} times. In this case, it stop here.
+# 3. The sapling is now on the ground... The plugin will select a random number between 0 and 100.
+#    If it's lower (or equal) than chance value => the sapling is replanted and the task stop here.
+#    Otherwise, it waits for {frequency} ticks before to retry.
+#    If after trying {maxTries} times the sapling is still not planted, the plugin stop to try.
+# .
+# /!\ Of course, if during the process the sapling despawn (naturaly, cf your spigot / paper settings)
+# of because it has burned, been eaten by a cactus, absorbed by a hopper, picked up by a player / other entity, ...
+# the plugin will also stop this task safely, so don't worry about that.
