@@ -25,33 +25,20 @@ import org.bukkit.scheduler.BukkitRunnable;
 
 public class SAR extends JavaPlugin implements Listener {
     private final Random random = new Random();
-    // @formatter:off
-    private final Set<Material> saplings = Tag.SAPLINGS.getValues(), dirtLike = new HashSet<Material>() {
-        private static final long serialVersionUID = 1L;
-        { addAll(Arrays.asList(Material.COARSE_DIRT, Material.DIRT, Material.GRASS_BLOCK, Material.PODZOL)); }
-    };
-    // @formatter:on
-    private final HashMap<Material, BlockData> datas = new HashMap<Material, BlockData>();
 
     private int detectPeriod, detectMaxTry, replantChance, replantMaxTry, replantPeriod;
     private SAR instance;
 
-    private List<String> ignored;
+    private List<String>  ignored;
+    private Set<Material> saplings, dirtLike;
+
+    private HashMap<Material, BlockData> datas;
 
     // JavaPlugin methods ----------------------------------------------------------------------------------------------
 
     @Override
-    public void onLoad() {
-        super.onLoad();
-        instance = this;
-        saplings.forEach(t -> datas.put(t, Bukkit.createBlockData(t)));
-    }
-
-    @Override
-    public boolean onCommand(CommandSender sender, Command command, String label,
-            String[] args) {
-        if (!command.getName().equalsIgnoreCase("sar-reload"))
-            return super.onCommand(sender, command, label, args);
+    public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
+        if (!command.getName().equalsIgnoreCase("sar-reload")) return super.onCommand(sender, command, label, args);
         reloadConfig();
         sender.sendMessage("§7[§2SaplingsAutoReplant§7] Configuration reloaded.");
         return true;
@@ -60,6 +47,12 @@ public class SAR extends JavaPlugin implements Listener {
     @Override
     public void onEnable() {
         super.onEnable();
+        instance = this;
+        saplings = Tag.SAPLINGS.getValues();
+        datas    = new HashMap<Material, BlockData>();
+        saplings.forEach(t -> datas.put(t, Bukkit.createBlockData(t)));
+        dirtLike = new HashSet<Material>();
+        dirtLike.addAll(Arrays.asList(Material.COARSE_DIRT, Material.DIRT, Material.GRASS_BLOCK, Material.PODZOL));
         reloadConfig();
         Bukkit.getPluginManager().registerEvents(this, this);
     }
@@ -86,7 +79,6 @@ public class SAR extends JavaPlugin implements Listener {
         Item      i = e.getEntity();
         ItemStack s = i.getItemStack();
         Material  t = s.getType();
-
         if (saplings.contains(t)) new GroundDetect(i, t, detectPeriod, detectMaxTry, s);
     }
 
