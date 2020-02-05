@@ -6,6 +6,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
 import java.util.Set;
+import java.util.UUID;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.Tag;
@@ -16,15 +17,21 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Item;
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.ItemSpawnEvent;
+import org.bukkit.event.player.PlayerDropItemEvent;
+import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
 
 public class SAR extends JavaPlugin implements Listener {
     private final Random random = new Random();
+    private final String metaKS = getClass().getName();
 
     private int detectPeriod, detectMaxTry, replantChance, replantMaxTry, replantPeriod;
     private SAR instance;
@@ -82,6 +89,13 @@ public class SAR extends JavaPlugin implements Listener {
         if (saplings.contains(t)) new GroundDetect(i, t, detectPeriod, detectMaxTry, s);
     }
 
+    @EventHandler(ignoreCancelled = true)
+    private void onPlayerDropItem(PlayerDropItemEvent e) {
+        Item i = e.getItemDrop();
+        if (saplings.contains(i.getItemStack().getType()))
+            i.setMetadata(metaKS, new FixedMetadataValue(this, e.getPlayer().getUniqueId()));
+    }
+
     // Private classes -------------------------------------------------------------------------------------------------
 
     private abstract class SART extends BukkitRunnable {
@@ -119,8 +133,18 @@ public class SAR extends JavaPlugin implements Listener {
         protected void proceed() {
             if (i.isOnGround()) {
                 cancel();
-                new Replant(i, t, replantPeriod, replantMaxTry, s);
+                if (canPlant()) new Replant(i, t, replantPeriod, replantMaxTry, s);
             }
+        }
+
+        private boolean canPlant() {
+            Player p = Bukkit.getPlayer((UUID) i.getMetadata(metaKS).get(0).value());
+            if (p == null) return false;
+            Block           b     = i.getLocation().getBlock();
+            BlockPlaceEvent event = new BlockPlaceEvent(b, b.getState(), b.getRelative(BlockFace.DOWN),
+                    i.getItemStack(), p, true, EquipmentSlot.HAND);
+            Bukkit.getPluginManager().callEvent(event);
+            return !event.isCancelled();
         }
     }
 
