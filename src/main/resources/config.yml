@@ -34,7 +34,22 @@ emptyBlocks: # Availage values: https://hub.spigotmc.org/javadocs/spigot/org/buk
 # /!\ Also note all non-blocks materials (for example EGG), or solid materials (for example STONE)
 # will not be considered by the plugin in this list, because:
 # - non-blocks => There are not blocks in the world (thanks Captain Obvious!)
-# - solid materials => Saplings will stay above and so cannot be placed at the same position. 
+# - solid materials => Saplings will stay above and so cannot be placed at the same position.
+
+# Define here crops you want to replant themselves like sapplings (except THEY REQUIRE A FARMLAND BLOCK UNDER).
+# You can also create particular things... I don't know sth like « GUNPOWDER: TNT » or « RABBIT_FOOT: ANVIL » ...
+# (but there is no growing system for them obviously, so the block will spawn directly when you'll drop its "crop")
+crops: {} # <== « {} » represents an empty list, this disable this feature
+# To enable:
+# Define list of blocks which will replant itselves, syntax is <crop material>: <block material>
+# (Use this material list here: https://hub.spigotmc.org/javadocs/spigot/org/bukkit/Material.html)
+
+# Examples: I've used this page to get values: https://minecraft.gamepedia.com/Crops
+# crops:
+#   WHEAT_SEEDS: WHEAT
+#   BEETROOT_SEEDS: BEETROOTS
+#   CARROT: CARROTS
+#   POTATO: POTATOES
 
 ####################################### HOW THOSE VALUES ARE USED BY THE PLUGIN: #######################################
 
